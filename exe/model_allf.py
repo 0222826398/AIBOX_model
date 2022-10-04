@@ -5,7 +5,7 @@ import os
 from sklearn.model_selection import train_test_split
 import joblib
 
-df = pd.read_csv("exe/testflow.csv")
+df = pd.read_csv("exe/NewDataSet_134810_5m.csv")
 
 df.columns = df.columns.str.strip()
 print("original length of df:", len(df))
@@ -16,8 +16,8 @@ print("after droping null values, the length of df:", len(df))
 
 
 
-df = df.drop(["src_ip" , "dst_ip", "src_port", "src_mac", "dst_mac", "protocol", "timestamp"], axis = 1)
-
+# df = df.drop(["src_ip" , "dst_ip", "src_port", "src_mac", "dst_mac", "protocol", "timestamp"], axis = 1)
+# df = df.drop(["Label"], axis = 1)
 
 std_scaler,mm_scaler,le = joblib.load("exe/new_model/1.5_std_mm_le_all_feature.save")
 
