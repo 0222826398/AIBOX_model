@@ -58,33 +58,48 @@ def model_main():
     global Flag
 
     cnt = 0
-    while(True and cnt < 3):
+    while(True and cnt < 10):
         while(not Flag):
             print("////flow predict////")
             time.sleep(2)
             file = sorted(next(os.walk("flow/"))[2])[0]
             testdata = "flow/" + file
-            df = pd.read_csv(testdata)
-
             
-            '''this need a if loop if df is nan need break'''
+            try:
+                df = pd.read_csv(testdata)
+
+            except pd.errors.EmptyDataError: # or BaseException
+                f_len, P_A, P_L, f_pred = 0, None, None, None
             
+            else:
+                data_flow, f_len = data_preprocess(df)
 
-            data_flow, f_len = data_preprocess(df)
+                f_pred = model.predict(data_flow)
+                P_A = (list(f_pred).count(1)/f_pred.shape[0])*100
+                P_L = (list(f_pred).count(0)/f_pred.shape[0])*100
 
-            f_pred = model.predict(data_flow)
+                '''Test for dataset'''
+                if f_pred.any() == 1:
+                   print("----------------------------------------------------------")
+                   print("     Time                    : \t", time.asctime(time.localtime(time.time())))
+                   print("     Alert : Anomaly traffic detected \t")
+                   print("     flow file               : \t", testdata)
+                   print("----------------------------------------------------------")
+                   '''move error data to Abnormal file'''
+                   break
 
-            print(f_pred)
-            print("----------------------------------------------------------")
-            print("     Time                    : \t", time.asctime(time.localtime(time.time())))
-            print("     Amount of flows         : \t", f_len)
-            print("     Percentage of Anomaly   : \t", (list(f_pred).count(1)/f_pred.shape[0])*100)
-            print("     Percentage of Legit     : \t",(list(f_pred).count(0)/f_pred.shape[0])*100)
-            print("----------------------------------------------------------")
+            finally:
+                print(f_pred)
+                print("----------------------------------------------------------")
+                print("     Time                    : \t", time.asctime(time.localtime(time.time())))
+                print("     Amount of flows         : \t", f_len)
+                print("     Percentage of Anomaly   : \t", P_A)
+                print("     Percentage of Legit     : \t", P_L)
+                print("----------------------------------------------------------")
 
-            os.remove(testdata)
-            cnt = cnt + 1
-            print("cnt = ",cnt)
+                os.remove(testdata)
+                cnt = cnt + 1
+                print("cnt = ",cnt)
         
     return None
 
@@ -95,4 +110,4 @@ t_cic.start()
 t_model.start()
 
 t_cic.join()
-t_cic.join()
+t_model.join()
