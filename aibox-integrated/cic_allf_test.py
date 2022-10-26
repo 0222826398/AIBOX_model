@@ -8,8 +8,8 @@ import pandas as pd
 import os
 import threading as td
 
-std_scaler, mm_scaler, le = joblib.load("exe/new_model/1.5_std_mm_le_all_feature.save")
-model = joblib.load("exe/new_model/pkl/1.5_randomForest_all_feature_32.pkl")
+std_scaler, mm_scaler, le = joblib.load("exe/new_model/25679_std_mm_le_76_feature.save")
+model = joblib.load("exe/new_model/pkl/25679_randomForest_76_feature_32.pkl")
 Flag = True
 
 def cicflowmeter(start,C = 0):
@@ -31,7 +31,7 @@ def data_preprocess(data):
     data.replace([np.inf, -np.inf], np.nan, inplace=True)
     data.dropna(inplace=True)
     data_len = len(data)
-    data = data.drop(["src_ip" , "dst_ip", "src_port", "src_mac", "dst_mac", "protocol", "timestamp"], axis = 1)
+    data = data.drop(["src_ip" , "dst_ip", "src_port", "dst_port", "src_mac", "dst_mac", "protocol", "timestamp"], axis = 1)
 
     data = mm_scaler.transform(std_scaler.transform(data.values))
 
@@ -46,9 +46,10 @@ def cic_main():
         Flag = True
         print("cicflowmeter started")
         time.sleep(10)
+        Flag = False
         print("cicflowmeter stopped")
         cicflowmeter(False)
-        Flag = False
+        # time.sleep(0.5)
         C = C + 1
 
     return None
@@ -61,7 +62,7 @@ def model_main():
     while(True and cnt < 10):
         while(not Flag):
             print("////flow predict////")
-            time.sleep(2)
+            time.sleep(1)
             file = sorted(next(os.walk("flow/"))[2])[0]
             testdata = "flow/" + file
             
@@ -78,17 +79,19 @@ def model_main():
                 P_A = (list(f_pred).count(1)/f_pred.shape[0])*100
                 P_L = (list(f_pred).count(0)/f_pred.shape[0])*100
 
+            finally:
                 '''Test for dataset'''
-                if f_pred.any() == 1:
+                if (f_len and f_pred.any()) == 1:
                    print("----------------------------------------------------------")
                    print("     Time                    : \t", time.asctime(time.localtime(time.time())))
-                   print("     Alert : Anomaly traffic detected \t")
+                   print("     /////////Alert///////// : Anomaly traffic detected \t")
                    print("     flow file               : \t", testdata)
                    print("----------------------------------------------------------")
                    '''move error data to Abnormal file'''
+                   desdata = "Abnormal/" + time.asctime(time.localtime(time.time())) + ".csv"
+                   os.replace(testdata, desdata)
                    break
 
-            finally:
                 print(f_pred)
                 print("----------------------------------------------------------")
                 print("     Time                    : \t", time.asctime(time.localtime(time.time())))
