@@ -2,6 +2,7 @@ import subprocess
 import signal
 import os
 import time
+
 def cicflowmeter(start):
     global pid
     if start:     
