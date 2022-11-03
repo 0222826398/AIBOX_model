@@ -11,6 +11,7 @@ import threading as td
 std_scaler, mm_scaler, le = joblib.load("exe/new_model/25679_std_mm_le_76_feature.save")
 model = joblib.load("exe/new_model/pkl/25679_randomForest_76_feature_32.pkl")
 Flag = True
+C = 0
 
 def cicflowmeter(start,C = 0):
     global pid
@@ -40,7 +41,8 @@ def data_preprocess(data):
 
 def cic_main():
     global Flag
-    C = 0
+    global C
+    #C = 0
     while(True):
         cicflowmeter(True, C)
         Flag = True
@@ -57,14 +59,16 @@ def cic_main():
 
 def model_main():
     global Flag
-
+    global C
+    
     cnt = 0
     while(True and cnt < 10):
         while(not Flag):
             print("////flow predict////")
             time.sleep(1)
-            file = sorted(next(os.walk("flow/"))[2])[0]
-            testdata = "flow/" + file
+            #file = sorted(next(os.walk("flow/"))[2])[0]
+            #testdata = "flow/" + file
+            testdata = 'flow/flows' + str(C-1) + '.csv'
             
             try:
                 df = pd.read_csv(testdata)
