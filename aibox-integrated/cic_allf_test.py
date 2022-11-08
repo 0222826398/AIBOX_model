@@ -45,7 +45,7 @@ def cic_main():
     #C = 0
     while(True):
         cicflowmeter(True, C)
-        Flag = True
+        # Flag = True
         print("cicflowmeter started")
         time.sleep(10)
         Flag = False
@@ -65,6 +65,7 @@ def model_main():
     while(True and cnt < 10):
         while(not Flag):
             print("////flow predict////")
+            Flag = True
             time.sleep(1)
             #file = sorted(next(os.walk("flow/"))[2])[0]
             #testdata = "flow/" + file
